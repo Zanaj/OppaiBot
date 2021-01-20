@@ -15,6 +15,38 @@ public class AdminAttribute : Attribute { }
 public class AdminCommands : BaseCommandModule
 {
     [Admin]
+    [Command("AddLevelRole")]
+    [Description("Adds a level role to the list of roles. There can only be one role per level. You need to provide the role or id then the level at which you get the role")]
+    [RequirePermissions(Permissions.Administrator)]
+    public async Task MakeLevelRole(CommandContext ctx, DiscordRole role, int level)
+    {
+        if (!Bot.levelRoles.Keys.Contains(level))
+            Bot.levelRoles.Add(level, 0);
+
+        Bot.levelRoles[level] = role.Id;
+        //TODO: add roles to all people who already is this level.
+
+        await Bot.SendBasicEmbed(ctx.Channel, "There we go", "We added the requested level role!", EmbedColor.server, true);
+    }
+
+    [Admin]
+    [Command("RemoveLevelRole")]
+    [Description("Adds a level role to the list of roles. There can only be one role per level. You need to provide the role or id then the level at which you get the role")]
+    [RequirePermissions(Permissions.Administrator)]
+    public async Task RemoveLevelRole(CommandContext ctx, int level)
+    {
+        if (Bot.levelRoles.Keys.Contains(level))
+        {
+            Bot.levelRoles.Remove(level);
+            await Bot.SendBasicEmbed(ctx.Channel, "There we go", "We removed the level " + level + " role!");
+        }
+        else
+        {
+            await Bot.SendBasicEmbed(ctx.Channel, "Whoops", "There were not a level role assigned to that level!", EmbedColor.server, true);
+        }
+    }
+
+    [Admin]
     [Command("BaseSettings")]
     [Description("Starts the process of setting server's uncategorized settings. This requires no arguements.")]
     [RequirePermissions(Permissions.Administrator)]

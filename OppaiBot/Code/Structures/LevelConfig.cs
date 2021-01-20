@@ -28,8 +28,7 @@ public class LevelConfig : IConfigurable, IMessageCallback
     public void Callback(MessageSettingRequest request)
     {
         MessageRequirement[] msg = request.queue.ToArray();
-        if (msg.Length >= 11)
-        {
+        
             try
             {
                 min_msg_exp = (int)msg[0].value;
@@ -40,18 +39,11 @@ public class LevelConfig : IConfigurable, IMessageCallback
                 a = (float)msg[5].value;
                 b = (float)msg[6].value;
                 visableAmountLeaderboard = (int)msg[7].value;
-                levelUpRoles = (ulong[])msg[8].value;
-                levelRoleRequirment = (int[])msg[9].value;
             }
             catch (InvalidCastException e)
             {
                 Console.WriteLine(e.Message);
             }
-        }
-        else
-        {
-            Console.WriteLine("Wrong amount of arguements got " + request.queue.Count);
-        }
     }
 
     public string GetDefualtJsonString()
@@ -69,7 +61,7 @@ public class LevelConfig : IConfigurable, IMessageCallback
             a = 300,
             b = 50,
 
-            visableAmountLeaderboard = 5,
+            visableAmountLeaderboard = 4,
         };
 
         return JsonConvert.SerializeObject(defualt);

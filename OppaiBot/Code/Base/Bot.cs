@@ -46,8 +46,12 @@ namespace OppaiBot
         public static DiscordMessage dropMessage;
         public static int amountDropped;
         public static List<DeleteRequest> toDelete;
+
+
+        public static Dictionary<int, ulong> levelRoles; 
         public static async Task Initialize()
         {
+            levelRoles = new Dictionary<int, ulong>();
             toDelete = new List<DeleteRequest>();
 
             ConfigHandler.InitializeConfigs();

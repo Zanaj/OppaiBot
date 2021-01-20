@@ -46,7 +46,21 @@ public class GeneralCommands : BaseCommandModule
             double floored = Math.Floor(span.TotalSeconds);
             double difference = cooldown - floored;
 
-            await Bot.SendBasicEmbed(ctx.Channel, "Too early", "You can use this again in `" + difference + "` seconds!", EmbedColor.server, true);
+            string unit = "";
+            if (difference <= 60)
+                unit = "seconds ";
+            else if (difference <= 3600)
+            {
+                unit = "minutes ";
+                difference = Math.Floor(difference / 60);
+            }
+            else
+            {
+                unit = "hours";
+                difference = Math.Floor(difference / 3600);
+            }
+
+            await Bot.SendBasicEmbed(ctx.Channel, "Too early", "You can use this again in `" + difference + "` " + unit + "!", EmbedColor.server, true);
         }
     }
 
@@ -101,55 +115,73 @@ public class GeneralCommands : BaseCommandModule
     [Description("Shows leader board of top users. You can sort by: Money, Score, Level and Exp!")]
     public async Task ShowLeaderboard(CommandContext ctx)
     {
-        Console.WriteLine("I am called without arguments");
         List<User> sortedUsers = Bot.users;
+        User activedUser = Bot.GetUserByID(ctx.User);
+
+        int rankDecimals = 3;
+        int levelDecimals = 2;
+        int expDecimals = 5;
 
         sortedUsers = sortedUsers.OrderBy(x => x.exp).ToList();
-        List<string> values = sortedUsers.Select(x => x.exp.ToString()).ToList();
-        values.Reverse();
+        sortedUsers.Reverse();
+        int placement = sortedUsers.FindIndex(x => x.Id == ctx.User.Id) + 1;
 
-        Console.WriteLine("Called");
+        sortedUsers = sortedUsers.Take(ConfigHandler.levelConfig.visableAmountLeaderboard).ToList();
 
-        await ShowLeaderboardEmbed(ctx, sortedUsers, values, "exp");
-    }
+        DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+        builder.Title = "Leaderboard:";
 
-    [General]
-    [Command("Leaderboard")]
-    public async Task ShowLeaderboard(CommandContext ctx, string sortBy)
-    {
-        Console.WriteLine("I am called with arguements");
+        string desc = "```diff\n";
 
-        List<User> sortedUsers = Bot.users;
-        List<string> values = new List<string>();
-        LevelConfig cfg = ConfigHandler.levelConfig;
+        int longestName = GetLongest(sortedUsers.Select(x => x.name).ToList(), "NAME");
+        
+        if (longestName < activedUser.name.Length)
+            longestName = activedUser.name.Length;
 
-        switch (sortBy.ToLower())
+        desc += String.Format("{0," + rankDecimals + "} | {1,-"+longestName+"} | {2,"+levelDecimals+"} | {3,"+expDecimals+"} |\n \n", "#", "NAME", "LVL", "EXP");
+
+        string format = "";
+        format += "{0,"+rankDecimals+"} | ";
+        format += "{1,-" + longestName + "} | ";
+        format += " {2," + levelDecimals + "} | ";
+        format += "{3,"+expDecimals+"} |";
+
+        bool shouldDoDiff = sortedUsers.Exists(x => x.Id == ctx.User.Id);
+
+        for (int i = 0; i < sortedUsers.Count; i++)
         {
-            case "currency":
-                sortedUsers = sortedUsers.OrderBy(x => x.points).ToList();
-                values = sortedUsers.Select(x => x.points.ToString()).ToList();
-                values.Reverse();
-                break;
-            case "level":
-                
-                sortedUsers = sortedUsers.OrderBy(x => x.level).ToList();
-                values = sortedUsers.Select(x => x.level.ToString()).ToList();
-                values.Reverse();
-                break;
-            case "exp":
-                sortedUsers = sortedUsers.OrderBy(x => cfg.GetExpForLevel(x.level) + x.exp).ToList();
-                values = sortedUsers.Select(x => (cfg.GetExpForLevel(x.level) + x.exp).ToString()).ToList();
-                values.Reverse();
-                break;
-            default:
-                sortedUsers = sortedUsers.OrderBy(x => cfg.GetExpForLevel(x.level) + x.exp).ToList();
-                values = sortedUsers.Select(x => (cfg.GetExpForLevel(x.level) + x.exp).ToString()).ToList();
-                values.Reverse();
-                sortBy = "exp";
-                break;
+            User user = sortedUsers[i];
+            string formattedString = String.Format(format, i + 1, user.name, user.level, (int)user.exp);
+
+            if (shouldDoDiff)
+            {
+                string newStr = user.Id == ctx.User.Id ? "+" : "-";
+                formattedString = newStr + formattedString;
+            }
+
+            desc += formattedString;
+            desc += "\n";
         }
 
-        await ShowLeaderboardEmbed(ctx, sortedUsers, values, sortBy);
+        desc += "\n";
+        if(!sortedUsers.Exists(x => x.Id == ctx.User.Id))
+        {
+            string formattedString = String.Format(format, placement, activedUser.name, activedUser.level, (int)activedUser.exp);
+            desc += formattedString;
+        }
+        desc += "```";
+
+        builder.Description = desc;
+
+        await ctx.RespondAsync("", false, builder.Build());
+    }
+
+    public int GetLongest(List<string> list, string other)
+    {        
+        int length = other.Length;
+        int listLength = list.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur).Length;
+
+        return length > listLength ? length : listLength;
     }
 
     [General]
@@ -195,25 +227,6 @@ public class GeneralCommands : BaseCommandModule
         User user = Bot.GetUserByID(ctx.Member);
         string currencyName = ConfigHandler.economyConfig.currency;
         await Bot.SendBasicEmbed(ctx.Channel, "Woo", ctx.Member.DisplayName + " currently have " + user.points + " " + currencyName + "!", EmbedColor.server, true);
-    }
-    public async Task ShowLeaderboardEmbed(CommandContext ctx, List<User> users, List<string> values, string sortedName)
-    {
-        DiscordMessage msg = await ctx.RespondAsync("Gathering informations!");
-
-        string title = sortedName + " Leaderboard";
-        string description = "This leaderboard is sorted by " + sortedName;
-
-        DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
-        builder.Title = title;
-        builder.Description = description;
-
-        for (int i = 0; i < users.Count; i++)
-        {
-            builder.AddField(users[i].name, values[i], false);
-        }
-
-        await msg.DeleteAsync();
-        await ctx.RespondAsync("", false, builder.Build());
     }
 
     [General]

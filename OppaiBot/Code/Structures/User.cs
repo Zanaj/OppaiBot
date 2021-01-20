@@ -115,13 +115,23 @@ public class User : IMessageCallback
         this.exp += exp;
         float nextLevelExp = ConfigHandler.levelConfig.GetExpForLevel(level + 1);
 
+        Console.WriteLine(name + ": " + this.exp + " / " + nextLevelExp);
+
         if (!member.IsBot)
         {
-            if (exp >= nextLevelExp)
+            if (this.exp >= nextLevelExp)
             {
                 if (ConfigHandler.baseConfig.levelUpChannel > 100)
                 {
                     level++;
+
+                    if (Bot.levelRoles.ContainsKey(level))
+                    {
+                        ulong roleID = Bot.levelRoles[level];
+                        DiscordRole role = Bot.guild.Roles[roleID];
+
+                        member.GrantRoleAsync(role);
+                    }
 
                     DiscordChannel channel = Bot.guild.Channels[ConfigHandler.baseConfig.levelUpChannel];
                     string desc = ConfigHandler.baseConfig.levelMsg;

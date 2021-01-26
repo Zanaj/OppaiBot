@@ -213,7 +213,7 @@ namespace OppaiBot
                 float exp = difference * scaler;
                 exp += min;
 
-                user.GiveExp(exp, member, ExpType.Message);
+                user.GiveExp(exp, member, ExpType.Message, e.Channel);
 
                 TimeSpan span = DateTime.Now - lastDrop;
                 if (span.TotalSeconds >= ConfigHandler.economyConfig.appearCooldown)

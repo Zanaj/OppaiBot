@@ -192,7 +192,7 @@ public class GeneralCommands : BaseCommandModule
         float exp = pointsUsed * ConfigHandler.economyConfig.pointsToExpRate;
         User user = Bot.GetUserByID(ctx.Member);
 
-        user.GiveExp(exp, ctx.Member, ExpType.Admin);
+        user.GiveExp(exp, ctx.Member, ExpType.Admin, null);
         string desc = "You recieved " + exp + "!";
         await Bot.SendBasicEmbed(ctx.Channel, "Success", desc, EmbedColor.success, true);
     }

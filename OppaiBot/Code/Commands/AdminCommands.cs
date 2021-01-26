@@ -52,13 +52,8 @@ public class AdminCommands : BaseCommandModule
     [RequirePermissions(Permissions.Administrator)]
     public async Task SetSettings(CommandContext ctx)
     {
-        string levelMsgText = "What message should display as level up?";
-        levelMsgText += "You can use {user} for username and {level} to show the NEW level";
-
         MessageRequirement[] requirements = new MessageRequirement[]
         {
-            new MessageRequirement(levelMsgText, ArguementType.STRING),
-            new MessageRequirement("Mention the channel you wish for levels to appear", ArguementType.CHANNEL),
             new MessageRequirement("Mention all channels that are activity channels", ArguementType.CHANNEL, true),
             new MessageRequirement("Server color RED amount", ArguementType.FLOAT),
             new MessageRequirement("Server color GREEN amount", ArguementType.FLOAT),
@@ -157,8 +152,17 @@ public class AdminCommands : BaseCommandModule
     [Description("Starts the process of setting server's level related settings. This requires no arguements.")]
     public async Task SetLevel(CommandContext ctx)
     {
+
+        string levelMsgText = "What message should display as level up?";
+        levelMsgText += "You can use {user} for username and {level} to show the NEW level";
+        
+
         MessageRequirement[] requirements = new MessageRequirement[]
        {
+           new MessageRequirement(levelMsgText, ArguementType.STRING),
+            new MessageRequirement("What should be appended to level msg if role is granted use {role} for the new role!", ArguementType.STRING),
+            new MessageRequirement("Mention the channel you wish for levels to appear", ArguementType.CHANNEL),
+            new MessageRequirement("Mention all channels which gives exp", ArguementType.CHANNEL, true),
             new MessageRequirement("Minimum exp a mesage can give. Write -1 if you wish to skip.", ArguementType.INT),
             new MessageRequirement("Maximum exp a mesage can give. Write -1 if you wish to skip.", ArguementType.INT),
             new MessageRequirement("Minimum exp being in vc gives. Write -1 if you wish to skip.", ArguementType.INT),
@@ -236,7 +240,7 @@ public class AdminCommands : BaseCommandModule
     public async Task ManageExp(CommandContext ctx, DiscordMember member, float amount)
     {
         User user = Bot.GetUserByID(member);
-        user.GiveExp(amount, member, ExpType.Admin);
+        user.GiveExp(amount, member, ExpType.Admin, null);
         
         string verb = amount < 0 ? "removed from" : "added to";
         amount = Math.Abs(amount);
@@ -259,7 +263,7 @@ public class AdminCommands : BaseCommandModule
         float nextLevelExp = ConfigHandler.levelConfig.GetExpForLevel(user.level + 1);
 
         float expNeeded = nextLevelExp - user.exp;
-        user.GiveExp(expNeeded + 1, member, ExpType.Admin);
+        user.GiveExp(expNeeded + 1, member, ExpType.Admin, null);
 
         string desc = "Leveled " + member.DisplayName + " up to" + user.level + "!";
         string title = "Woo level up";

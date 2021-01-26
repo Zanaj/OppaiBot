@@ -25,18 +25,25 @@ public class LevelConfig : IConfigurable, IMessageCallback
     public ulong[] levelUpRoles { get; set; }
     public int[] levelRoleRequirment { get; set; }
 
+    public ulong[] xpGrantingChannels { get; set; }
+    public string roleAppendText { get; set; }
+
     public void Callback(MessageSettingRequest request)
     {
         MessageRequirement[] msg = request.queue.ToArray();
+        ConfigHandler.baseConfig.levelMsg = (string)msg[0].value;
+        roleAppendText = (string)msg[1].value;
+        ConfigHandler.baseConfig.levelUpChannel = (ulong)msg[2].value;
+        xpGrantingChannels = (ulong[])msg[3].value;
 
-        min_msg_exp = (int)msg[0].value;
-        max_msg_exp = (int)msg[1].value;
-        min_vc_exp = (int)msg[2].value;
-        max_vc_exp = (int)msg[3].value;
-        maxLevel = (int)msg[4].value;
-        a = (float)msg[5].value;
-        b = (float)msg[6].value;
-        visableAmountLeaderboard = (int)msg[7].value;
+        min_msg_exp = (int)msg[4].value;
+        max_msg_exp = (int)msg[5].value;
+        min_vc_exp = (int)msg[6].value;
+        max_vc_exp = (int)msg[7].value;
+        maxLevel = (int)msg[8].value;
+        a = (float)msg[9].value;
+        b = (float)msg[10].value;
+        visableAmountLeaderboard = (int)msg[11].value;
 
         ConfigHandler.Save();
     }

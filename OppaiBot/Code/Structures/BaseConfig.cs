@@ -31,14 +31,11 @@ public class BaseConfig : IConfigurable, IMessageCallback
         {
             try
             {
-                levelMsg = msg[0].value.ToString();
-                levelUpChannel = (ulong)msg[1].value;
+                activityChannel = (ulong[])msg[0].value;
 
-                activityChannel = (ulong[])msg[2].value;
-
-                serverColorR = (float)msg[3].value;
-                serverColorG = (float)msg[4].value;
-                serverColorB = (float)msg[5].value;
+                serverColorR = (float)msg[1].value;
+                serverColorG = (float)msg[2].value;
+                serverColorB = (float)msg[3].value;
 
                 if (serverColorR > 1)
                     serverColorR /= 255;
@@ -50,7 +47,7 @@ public class BaseConfig : IConfigurable, IMessageCallback
                     serverColorB /= 255;
 
 
-                serverTickRate = (int)msg[6].value;
+                serverTickRate = (int)msg[4].value;
 
                 //Bot.serverTickTimer.Stop();
                 //Bot.serverTickTimer.Interval = serverTickRate;

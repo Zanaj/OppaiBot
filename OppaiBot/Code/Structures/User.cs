@@ -108,8 +108,21 @@ public class User : IMessageCallback
         }
     }
 
-    public void GiveExp(float exp, DiscordMember member, ExpType type)
+    public void GiveExp(float exp, DiscordMember member, ExpType type, DiscordChannel ch)
     {
+        if(type != ExpType.Admin)
+        {
+            if (ConfigHandler.levelConfig.xpGrantingChannels != null)
+            {
+                if (ch != null || ConfigHandler.levelConfig.xpGrantingChannels.Length > 0)
+                {
+                    if (!ConfigHandler.levelConfig.xpGrantingChannels.Contains(ch.Id)) { return; }
+                }
+                else { return; }
+            }
+            else { return; }
+        }
+
         switch (type)
         {
             case ExpType.Voice:
@@ -150,17 +163,15 @@ public class User : IMessageCallback
                 {
                     DiscordChannel channel = Bot.guild.Channels[ConfigHandler.baseConfig.levelUpChannel];
                     string desc = ConfigHandler.baseConfig.levelMsg;
+                    
                     desc = desc.Replace("{user}", member.Mention);
                     desc = desc.Replace("{level}", level.ToString());
 
                     if (hasGottenRole)
                     {
-                        if (desc.Last() != '.' && desc.Last() != '!' && desc.Last() != ';')
-                            desc += ".";
-
-                        desc += " Congrats you have earned the role of: " + role.Mention;
+                        desc += ConfigHandler.levelConfig.roleAppendText;
+                        desc = desc.Replace("{role}", role.Mention);
                     }
-                        
 
                     DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
                     builder.Title = member.DisplayName + " Leveled up!";

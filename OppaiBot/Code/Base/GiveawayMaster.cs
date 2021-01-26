@@ -15,6 +15,7 @@ public class GiveawayMaster : IMessageCallback
     public string title;
     public DiscordChannel channel;
     public static GiveawayMaster instance;
+    public int maxTicketNumber;
     public int startingPool;
     public int cost;
     public int interval;
@@ -105,11 +106,12 @@ public class GiveawayMaster : IMessageCallback
         try
         {
             title = (string)msg[0].value;
-            startingPool = (int)msg[1].value;
-            int mult = (int)msg[2].value;
-            int val = (int)msg[3].value;
-            cost = (int)msg[4].value;
-            ulong channelID = (ulong)msg[5].value;
+            maxTicketNumber = (int)msg[1].value;
+            startingPool = (int)msg[2].value;
+            int mult = (int)msg[3].value;
+            int val = (int)msg[4].value;
+            cost = (int)msg[5].value;
+            ulong channelID = (ulong)msg[6].value;
 
             interval = mult > 0 ? 1000 : 1;
             interval *= mult > 1 ? 60 : 1;
@@ -127,7 +129,7 @@ public class GiveawayMaster : IMessageCallback
         }
         catch (InvalidCastException e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine("Giveway Master: " + e.Message);
         }
     }
 

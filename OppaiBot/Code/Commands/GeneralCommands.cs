@@ -122,7 +122,7 @@ public class GeneralCommands : BaseCommandModule
         int levelDecimals = 2;
         int expDecimals = 5;
 
-        sortedUsers = sortedUsers.OrderBy(x => x.exp).ToList();
+        sortedUsers = sortedUsers.OrderBy(x => x.totalExp).ToList();
         sortedUsers.Reverse();
         int placement = sortedUsers.FindIndex(x => x.Id == ctx.User.Id) + 1;
 
@@ -251,11 +251,15 @@ public class GeneralCommands : BaseCommandModule
             User user = Bot.GetUserByID(ctx.Member);
             if(user.points >= number * GiveawayMaster.instance.cost)
             {
-                user.points -= number * GiveawayMaster.instance.cost;
-                user.lotteryTickets += number;
+                if (user.lotteryTickets + number >= GiveawayMaster.instance.maxTicketNumber)
+                {
+                    user.points -= number * GiveawayMaster.instance.cost;
+                    user.lotteryTickets += number;
 
-                response = "You bought " + number + "Lottery tickets!";
-                isSuccess = true;
+                    response = "You bought " + number + "Lottery tickets!";
+                    isSuccess = true;
+                }
+                else { response = "You would have too many tickets if you buy this! Max number is: " + GiveawayMaster.instance.maxTicketNumber; }
             }
             else { response = "You dont have enough " + ConfigHandler.economyConfig.currency + " to buy " + number + " for " + (number * GiveawayMaster.instance.cost); }
         }
@@ -264,4 +268,30 @@ public class GeneralCommands : BaseCommandModule
         await Bot.SendBasicEmbed(ctx.Channel, "Lottery Master:", response, isSuccess ? EmbedColor.success : EmbedColor.error);
     }
 
+    [General]
+    [Command("Levelroles")]
+    [Aliases("Roles")]
+    public async Task ShowLevelRoles(CommandContext ctx)
+    {
+        DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
+
+        if(Bot.levelRoles.Count > 0)
+        {
+            builder.Title = "Current roles:";
+            foreach (var pair in Bot.levelRoles)
+            {
+                DiscordRole role = null;
+                if (ctx.Guild.Roles.TryGetValue(pair.Value, out role))
+                {
+                    builder.AddField("Level: " + pair.Key, role.Mention, true);
+                }
+            }
+        }
+        else
+        {
+            builder.Title = "No current level roles!";
+        }
+
+        await ctx.RespondAsync("", false, builder.Build());
+    }
 }

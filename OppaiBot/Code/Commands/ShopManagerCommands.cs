@@ -208,27 +208,18 @@ public class ShopManagerCommands : BaseCommandModule
             
             string fieldText = "**" + item.name + "**\n";
             fieldText += "**· · - ┈┈━━ ˚ . ✿ . ˚ ━━┈┈ - · ·** \n";
-            fieldText += "`"+user.shopDescription + "`\n";
+            fieldText += "> **Desc:** `" + item.description + "`\n";
             fieldText += "**· · - ┈┈━━ ˚ . ✿ . ˚ ━━┈┈ - · ·** \n";
 
             fieldText += "> **Item ID:** " + (i + 1) + "\n";
             fieldText += "> **Item Price:** " + item.price + " " + priceIcon + "\n";
             fieldText += "> **Stock Available:** " + item.quantity + "\n";
-            fieldText += "> **Desc:** `" + item.description + "`\n";
             fieldText += "\n";
 
             builder.Description += fieldText;
         }
 
         await ctx.RespondAsync("", false, builder.Build());
-    }
-
-    [Shop]
-    [Command("Buy")]
-    [Description("Use this to buy items from serverShop")]
-    public async Task Buy(CommandContext ctx, string itemName)
-    {
-
     }
 
     [Shop]

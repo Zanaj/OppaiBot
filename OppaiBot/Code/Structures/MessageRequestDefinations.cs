@@ -66,6 +66,8 @@ namespace MessageReqDefinations
         {
             bool rtn = false;
 
+            var curr = queue[step];
+
             if (lastDisplay != null)
                 lastDisplay.DeleteAsync();
 
@@ -153,7 +155,7 @@ namespace MessageReqDefinations
         {
             bool rtn = false;
             string str = e.Message.Content;
-
+            
             switch (queue[step].type)
             {
                 case ArguementType.INT:

@@ -152,6 +152,18 @@ public class Adminshop : IMessageCallback
                         }
                     }
                 }
+                else
+                {
+                    DiscordMember member = null;
+                    if (e.Guild.Members.TryGetValue(e.User.Id, out member))
+                    {
+                        DiscordChannel dm = member.CreateDmChannelAsync().Result;
+                        if (dm != null)
+                        {
+                            dm.SendMessageAsync("Sorry! You dont have enough for " + item.name + " from server " + e.Guild.Name);
+                        }
+                    }
+                }
             }
         }
     }

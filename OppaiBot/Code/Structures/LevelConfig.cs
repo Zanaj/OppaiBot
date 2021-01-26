@@ -28,22 +28,17 @@ public class LevelConfig : IConfigurable, IMessageCallback
     public void Callback(MessageSettingRequest request)
     {
         MessageRequirement[] msg = request.queue.ToArray();
-        
-            try
-            {
-                min_msg_exp = (int)msg[0].value;
-                max_msg_exp = (int)msg[1].value;
-                min_vc_exp = (int)msg[2].value;
-                max_vc_exp = (int)msg[3].value;
-                maxLevel = (int)msg[4].value;
-                a = (float)msg[5].value;
-                b = (float)msg[6].value;
-                visableAmountLeaderboard = (int)msg[7].value;
-            }
-            catch (InvalidCastException e)
-            {
-                Console.WriteLine(e.Message);
-            }
+
+        min_msg_exp = (int)msg[0].value;
+        max_msg_exp = (int)msg[1].value;
+        min_vc_exp = (int)msg[2].value;
+        max_vc_exp = (int)msg[3].value;
+        maxLevel = (int)msg[4].value;
+        a = (float)msg[5].value;
+        b = (float)msg[6].value;
+        visableAmountLeaderboard = (int)msg[7].value;
+
+        ConfigHandler.Save();
     }
 
     public string GetDefualtJsonString()

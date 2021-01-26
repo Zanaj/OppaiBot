@@ -163,13 +163,15 @@ public class AdminCommands : BaseCommandModule
             new MessageRequirement("Maximum exp a mesage can give. Write -1 if you wish to skip.", ArguementType.INT),
             new MessageRequirement("Minimum exp being in vc gives. Write -1 if you wish to skip.", ArguementType.INT),
             new MessageRequirement("Maximum exp being in vc gives. Write -1 if you wish to skip.", ArguementType.INT),
-            new MessageRequirement("Max level. Write -1 if you wish to skip.", ArguementType.INT),
+            new MessageRequirement("What should max level be? Write -1 if you wish to skip.", ArguementType.INT),
+
             new MessageRequirement("How much extra exp pr level. Write -1 if you wish to skip.", ArguementType.FLOAT),
             new MessageRequirement("Exp needed for level 0 to 1. Write -1 if you wish to skip.", ArguementType.FLOAT),
+            
             new MessageRequirement("How many entries should leaderboard show. Write -1 if you wish to skip.", ArguementType.INT),
        };
 
-        MessageSettingRequest request = new MessageSettingRequest(ctx.Member, ctx.Channel, ConfigHandler.baseConfig, requirements);
+        MessageSettingRequest request = new MessageSettingRequest(ctx.Member, ctx.Channel, ConfigHandler.levelConfig, requirements);
 
         await request.DisplayStep();
         QuerryHandler.requests.Add(request);
@@ -290,6 +292,7 @@ public class AdminCommands : BaseCommandModule
         MessageRequirement[] requirements = new MessageRequirement[]
         {
             new MessageRequirement("What should be the name of the lottery?", ArguementType.STRING),
+            new MessageRequirement("How many tickets can one person buy?", ArguementType.INT),
             new MessageRequirement("How much should starting pool be?", ArguementType.INT),
             new MessageRequirement("Which unit of time is the time in? \n Write 1 for seconds \n Write 2 for minutes \n Write 3 for hours \n Write 4 for days \n Write 5 for weeks", ArguementType.INT),
             new MessageRequirement("How long should the lottery count down be for?", ArguementType.INT),

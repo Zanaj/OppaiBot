@@ -42,6 +42,14 @@ public class User : IMessageCallback
     public DateTime lastClaimDaily { get; set; }
     public string name { get; set; }
 
+    public float totalExp
+    {
+        get
+        {
+            float curr = ConfigHandler.levelConfig.GetExpForLevel(level);
+            return curr + exp;
+        }
+    }
     public User() { }
 
     public User(DiscordMember member)
@@ -115,36 +123,55 @@ public class User : IMessageCallback
         this.exp += exp;
         float nextLevelExp = ConfigHandler.levelConfig.GetExpForLevel(level + 1);
 
-        Console.WriteLine(name + ": " + this.exp + " / " + nextLevelExp);
-
+        
         if (!member.IsBot)
         {
+            Console.WriteLine(name + ": " + this.exp + " / " + nextLevelExp);
+
             if (this.exp >= nextLevelExp)
             {
+                level++;
+
+                bool hasGottenRole = false;
+                DiscordRole role = null;
+
+                if (Bot.levelRoles.ContainsKey(level))
+                {
+                    ulong roleID = Bot.levelRoles[level];
+                    role = Bot.guild.Roles[roleID];
+
+                    member.GrantRoleAsync(role);
+                    hasGottenRole = true;
+                }
+
+                this.exp = 0;
+
                 if (ConfigHandler.baseConfig.levelUpChannel > 100)
                 {
-                    level++;
-
-                    if (Bot.levelRoles.ContainsKey(level))
-                    {
-                        ulong roleID = Bot.levelRoles[level];
-                        DiscordRole role = Bot.guild.Roles[roleID];
-
-                        member.GrantRoleAsync(role);
-                    }
-
                     DiscordChannel channel = Bot.guild.Channels[ConfigHandler.baseConfig.levelUpChannel];
                     string desc = ConfigHandler.baseConfig.levelMsg;
-                    desc = desc.Replace("{user}", member.DisplayName);
+                    desc = desc.Replace("{user}", member.Mention);
                     desc = desc.Replace("{level}", level.ToString());
+
+                    if (hasGottenRole)
+                    {
+                        if (desc.Last() != '.' && desc.Last() != '!' && desc.Last() != ';')
+                            desc += ".";
+
+                        desc += " Congrats you have earned the role of: " + role.Mention;
+                    }
+                        
 
                     DiscordEmbedBuilder builder = new DiscordEmbedBuilder();
                     builder.Title = member.DisplayName + " Leveled up!";
                     builder.Description = desc;
 
-                    channel.SendMessageAsync("", false, builder.Build());
-
-                    exp = 0;
+                    channel.SendMessageAsync("", false, builder.Build());   
+                }
+                else
+                {
+                    DiscordChannel ownerDM = member.Guild.Owner.CreateDmChannelAsync().Result;
+                    ownerDM.SendMessageAsync("Hey there just wanna tell you that level messages aint setup for " + member.Guild.Name + " currently :) please set it up!");
                 }
             }
         }
